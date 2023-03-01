@@ -20,6 +20,10 @@ You can call `loadMopinionFlutterBdrige(flutterEngine)` in the `override` method
     }
 ```
 
+### iOS Native Implementation
+
+Currently, we are working on the iOS  Flutter integration SDK, it will be published as soon as it is production ready.
+
 ### Flutter Implementation Steps
 
 #### - Step 1: Place the bridge into the Flutter project
