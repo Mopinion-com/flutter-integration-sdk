@@ -12,7 +12,7 @@ import MopinionSDK
 // singleton to pass messages with arguments from flutter to the MopinionSDK
 @objc public class MopinionFlutterBridge: NSObject {
     
-    private let methodChannelName = "MopinionFlutterBridge/native"
+    private let METHOD_CHANNEL_NAME = "MopinionFlutterBridge/native"    // flutter communication channel
 
     private struct MopinionFlutterBridgeError {
         let code : String
@@ -38,6 +38,7 @@ import MopinionSDK
         case DEPLOYMENT_KEY = "deployment_key"
         case FIRST_ARGUMENT = "argument1"
         case KEY = "key"
+        case LOG = "log"
         case VALUE = "value"
     }
 
@@ -59,7 +60,7 @@ import MopinionSDK
             return
         }
         MopinionFlutterBridge.controller = controller
-        let channel = FlutterMethodChannel(name: methodChannelName, binaryMessenger: controller.binaryMessenger)
+        let channel = FlutterMethodChannel(name: METHOD_CHANNEL_NAME, binaryMessenger: controller.binaryMessenger)
         MopinionFlutterBridge.channel = channel
         
         channel.setMethodCallHandler({
@@ -93,7 +94,11 @@ import MopinionSDK
             result(FlutterError(code: invalidArgError.code, message: "\(invalidArgError.message) \(MopinionFlutterArgument.DEPLOYMENT_KEY.rawValue)", details: "Expected deployment key as String"))
             return
         }
-        MopinionSDK.load(deploymentKey, true)
+        guard let enableLogging = (call.arguments as? Dictionary<String, AnyObject>)?[MopinionFlutterArgument.LOG.rawValue] as? Bool else {
+            result(FlutterError(code: invalidArgError.code, message: "\(invalidArgError.message) \(MopinionFlutterArgument.LOG.rawValue)", details: "Expected log to be bool (true or false)"))
+            return
+        }
+        MopinionSDK.load(deploymentKey, enableLogging)
         result(nil)
     }
 
@@ -108,11 +113,11 @@ import MopinionSDK
 
     private func addMetaData(controller: FlutterViewController, call: FlutterMethodCall, result: FlutterResult) {
         guard let key = (call.arguments as? Dictionary<String, AnyObject>)?[MopinionFlutterArgument.KEY.rawValue] as? String else {
-            result(FlutterError(code: invalidArgError.code, message: "\(invalidArgError.message) \(MopinionFlutterArgument.DEPLOYMENT_KEY.rawValue)", details: "Expected key value for map of metadata."))
+            result(FlutterError(code: invalidArgError.code, message: "\(invalidArgError.message) \(MopinionFlutterArgument.KEY.rawValue)", details: "Expected key value for map of metadata."))
             return
         }
         guard let value = (call.arguments as? Dictionary<String, AnyObject>)?[MopinionFlutterArgument.VALUE.rawValue] as? String else {
-            result(FlutterError(code: invalidArgError.code, message: "\(invalidArgError.message) \(MopinionFlutterArgument.DEPLOYMENT_KEY.rawValue)", details: "Expected value for map of metadata."))
+            result(FlutterError(code: invalidArgError.code, message: "\(invalidArgError.message) \(MopinionFlutterArgument.VALUE.rawValue)", details: "Expected value for map of metadata."))
             return
         }
         MopinionSDK.data(key, value)
@@ -120,7 +125,7 @@ import MopinionSDK
 
     private func removeMetadataWithKey(controller: FlutterViewController, call: FlutterMethodCall, result: FlutterResult) {
         guard let key = (call.arguments as? Dictionary<String, AnyObject>)?[MopinionFlutterArgument.KEY.rawValue] as? String else {
-            result(FlutterError(code: invalidArgError.code, message: "\(invalidArgError.message) \(MopinionFlutterArgument.DEPLOYMENT_KEY.rawValue)", details: "Expected key value for map of metadata."))
+            result(FlutterError(code: invalidArgError.code, message: "\(invalidArgError.message) \(MopinionFlutterArgument.KEY.rawValue)", details: "Expected key value for map of metadata."))
             return
         }
         MopinionSDK.removeData(forKey: key)
