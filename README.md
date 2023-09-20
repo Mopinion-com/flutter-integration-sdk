@@ -1,20 +1,23 @@
 # Flutter Integration SDK
 
-This Flutter Integration SDK contains code to help you use our Native/Web SDKs from Flutter.
+This Flutter Integration SDK contains code to help you use our Android and/or iOS Native/Web SDKs from Flutter.
 
 Tested with Flutter 3.13.4, Dart 3.1.2, DevTools 2.25.0, Xcode 15.0.
 
 ### Android Native Implementation Steps
-#### - Step 1: Download the package
-Download the `flutter-tools` package which can be found in this repository.
+#### - Step 1: Download the code
+- Download the `flutter-tools` folder from our github repo [flutter-integration-sdk](https://github.com/Mopinion-com/flutter-integration-sdk/archive/refs/heads/main.zip). 
 
 #### - Step 2: Add the package to your Native side project
-In the `android` package, find the `flutter` package and add it to your Android Native Root Project. 
-This package contains the extension function `.loadMopinionFlutterBridge(flutterEngine: FlutterEngine)`, this function is responsible of handle the `Method Channel` from Flutter and perform actions on the Native SDK.
+- From the downloaded `flutter-tools/android/android-package` folder, copy the `flutter` package to your Android Native Root Project.
+
+This package contains the extension function `.loadMopinionFlutterBridge(flutterEngine: FlutterEngine)`, which will handle the `Method Channel` from Flutter and perform actions on the Native SDK.
 
 #### - Step 3: Implement the bridge in the Native project
-In your Android Native Project, your MainActivity.kt (or equivalent) has to extend from `FlutterFragmentActivity`. 
-You can call `loadMopinionFlutterBdrige(flutterEngine)` in the `override` method `configureFlutterEngine(flutterEngine: FlutterEngine)` as the following:
+- In your Android Native Project, make your MainActivity.kt (or equivalent) extend from `FlutterFragmentActivity`. 
+
+- You can call `loadMopinionFlutterBdrige(flutterEngine)` in the `override` method `configureFlutterEngine(flutterEngine: FlutterEngine)` like the following:
+
 ```kotlin
     @ExperimentalStdlibApi
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
@@ -25,11 +28,11 @@ You can call `loadMopinionFlutterBdrige(flutterEngine)` in the `override` method
 ### iOS Native Implementation
 
 #### - Step 1: Download the code
-Download the `flutter-tools` folder from our github repo [flutter-integration-sdk](https://github.com/Mopinion-com/flutter-integration-sdk/archive/refs/heads/main.zip). 
+- Download the `flutter-tools` folder from our github repo [flutter-integration-sdk](https://github.com/Mopinion-com/flutter-integration-sdk/archive/refs/heads/main.zip). 
 
 #### - Step 2: Add the code to your Native side project
-- Open your Xcode project (default is ios/Runner.xcworkspace).
-- From the downloaded `flutter-tools/ios` folder, copy the `MopinionFlutterPlugin.swift` file somewhere into your Xcode main project. For example to the main folder of the `Runner` project of a default Flutter generated project.
+- Open your Xcode project (default is `ios/Runner.xcworkspace`).
+- From the downloaded `flutter-tools/ios` folder, copy the `MopinionFlutterBridge.swift` file somewhere into your Xcode main project. For example to the main folder of the `Runner` project of a default Flutter generated project.
 - In your `AppDelegate.swift` file, add a line for the method `MopinionFlutterBridge.shared.mopinionSdkBind()`. This will bind the Native project with the Flutter project and will receive the desired events.
 
 Here is an example of the `AppDelegate.swift`:
@@ -71,26 +74,33 @@ P.S: Flutter uses iOS 11 by default, which our MopinionSDKWeb supports. You can 
 It contains the class with all the methods that the SDK can perform. 
 
 #### - Step 2: Initialise the Mopinion Native SDK from Flutter
-- Add a single call to `initSdk()`, to make the SDK ready to use, preferrably during the start your project as for example:
+- Add a single call to `initSdk()`, to make the SDK ready to use, preferrably as soon as your project has displayed a user interface, as for example after the initState():
 
 ```dart
     //example class: main.dart
-
+    ...
+class _MyHomePageState extends State<MyHomePage> {
+	...
+	@override
+  void initState() {
+	...
     MopinionFlutterBridge.initSdk(String DEPLOYMENT_KEY, bool log)
 ```
 
-This should happen before using any of the other SDK  methods, as they expect the SDK to be initialised. 
+Your deployment key is a code-string that you can get from the Mopinion Deployment Editor in a web browser. 
 
-P.S: The functions of `MopinionFlutterBridge.dart` are static, thus there is no need of initialise it as an object. Once this is accomplished, the SDK is initialised and ready to use.
+The `initSdk()` should happen before using any of the other SDK  methods, as they expect the SDK to be initialised. Once this is done, the SDK is ready to use.
+
+P.S: The functions of `MopinionFlutterBridge.dart` are static, thus there is no need of initialise it as an object. 
 
 #### - Step 3: Invoke form events
-Once the SDK is initialised, you can invoke our form events from any View class of the Flutter project, as the following example:
+- Once the SDK is initialised, you can invoke our form events from any View class of the Flutter project, as the following example:
 
 ```dart
     //example class: main.dart
 
-    // .event will receive a EVENT_NAME you have previously 
-    // created on the Mopinion interface.
+    // .event accepts a EVENT_NAME string like "_button" as you have previously 
+    // defined in the Mopinion Deployment Editor.
     MopinionFlutterBridge.event(EVENT_NAME);
 
 ```
