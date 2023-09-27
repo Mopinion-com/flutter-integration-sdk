@@ -1,9 +1,8 @@
-import 'dart:collection';
-
 import 'package:flutter/services.dart';
 
 class MopinionFlutterBridge {
   static const platform = MethodChannel("MopinionFlutterBridge/native");
+  static const events = EventChannel("MopinionFlutterBridge/native/events");
 
   static const eventAction = "trigger_event";
   static const initSdkAction = "init_sdk";
@@ -11,20 +10,20 @@ class MopinionFlutterBridge {
   static const removeMetaDataAction = "remove_meta_data";
   static const removeAllMetaDataAction = "remove_all_meta_data";
 
-  void initSdk(String deploymentKey, bool log) async {
-    await platform.invokeMethod(initSdkAction, {
+  static Future<void> initSdk(String deploymentKey, bool log) async {
+    await platform.invokeMethod(initSdkAction, <String, dynamic> {
       "deployment_key": deploymentKey,
       "log": log
     });
   }
 
-  Future<String> event(String eventName) async {
-    return await platform.invokeMethod(eventAction, {
-      "argument1": eventName
+  static Future<String> event(String eventName) async {
+    return await platform.invokeMethod(eventAction, <String, dynamic> {
+        "argument1": eventName
     });
   }
 
-  void data(Map<String, String> map) async {
+  static Future<void> data(Map<String, String> map) async {
     map.forEach((key, value) {
       platform.invokeMethod(addMetaDataAction, {
         "key": key,
@@ -33,13 +32,13 @@ class MopinionFlutterBridge {
     });
   }
 
-  void removeMetaData(String key) async {
+  static Future<void> removeMetaData(String key) async {
     platform.invokeMethod(removeMetaDataAction, {
       "key": key
     });
   }
 
-  void removeAllMetaData() async {
+  static Future<void> removeAllMetaData() async {
     platform.invokeMethod(removeAllMetaDataAction);
   }
 
